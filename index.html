@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dark Chocolate Queen</title>
     
+    <!-- External Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,27 +14,53 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&display=swap');
         
         body { 
             font-family: 'Playfair Display', serif; 
             background-color: #0d0705; 
             margin: 0;
             overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
+            color: #f3e5ab;
         }
 
-        /* Custom scrollbar for that premium feel */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0d0705; }
-        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+        /* Improved Readability: Custom Selection & Text Shadows */
+        ::selection { background: #d4af37; color: #0d0705; }
+        
+        .text-glow {
+            text-shadow: 0 2px 15px rgba(212, 175, 55, 0.4);
+        }
 
+        .text-shadow-strong {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        /* Essential Animations */
         @keyframes spin-slow {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
         .animate-spin-slow {
-            animation: spin-slow 8s linear infinite;
+            animation: spin-slow 12s linear infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0705; }
+        ::-webkit-scrollbar-thumb { background: #8a6d3b; border-radius: 10px; }
+
+        /* Background Noise/Texture */
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
         }
     </style>
 </head>
@@ -43,13 +70,6 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback } = React;
         const { motion, AnimatePresence } = window.Motion;
-
-        // Icons from Lucide
-        const Heart = () => <i data-lucide="heart"></i>;
-        const Star = () => <i data-lucide="star"></i>;
-        const Sparkles = () => <i data-lucide="sparkles"></i>;
-        const Gift = () => <i data-lucide="gift"></i>;
-        const HeartHandshake = () => <i data-lucide="heart-handshake"></i>;
 
         const COMPLIMENTS = [
             "You're My Favorite Treat", "Pure Elegance", "Sweeter than Cocoa", 
@@ -76,25 +96,29 @@
 
             useEffect(() => {
                 lucide.createIcons();
-                const timer = setTimeout(() => setLovePercent(100), 500);
-                return () => clearTimeout(timer);
+                setLovePercent(100);
             }, []);
 
-            const triggerRain = useCallback(() => {
-                const count = Math.floor(Math.random() * 10) + 15;
+            // Trigger Lucide icons on dynamic content
+            useEffect(() => {
+                lucide.createIcons();
+            }, [openedTruffle, raining]);
+
+            const triggerRain = () => {
+                const count = 12;
                 const newRain = Array.from({ length: count }).map((_, i) => ({
                     id: Math.random(),
                     x: Math.random() * 90 + 5,
                     text: COMPLIMENTS[Math.floor(Math.random() * COMPLIMENTS.length)],
-                    delay: Math.random() * 2,
-                    duration: 3 + Math.random() * 2
+                    delay: Math.random() * 0.8,
+                    duration: 4 + Math.random() * 2
                 }));
                 
                 setRaining(prev => [...prev, ...newRain]);
                 setTimeout(() => {
                     setRaining(prev => prev.filter(item => !newRain.includes(item)));
-                }, 6000);
-            }, []);
+                }, 7500);
+            };
 
             const openTruffle = (truffle) => {
                 setOpenedTruffle(truffle);
@@ -102,28 +126,50 @@
             };
 
             return (
-                <div className="min-h-screen text-[#f3e5ab] selection:bg-[#4a2c2a] selection:text-white pb-10">
+                <div className="min-h-screen relative overflow-hidden pb-24">
+                    <div className="fixed inset-0 bg-grain pointer-events-none z-0"></div>
+
                     {/* Background Decor */}
-                    <div className="fixed inset-0 pointer-events-none opacity-20">
-                        <div className="absolute top-10 left-10 animate-pulse text-[#d4af37]"><i data-lucide="heart" fill="currentColor" style={{width: 48, height: 48}}></i></div>
-                        <div className="absolute top-1/2 right-10 -translate-y-1/2 text-[#d4af37]"><i data-lucide="star" fill="currentColor" style={{width: 60, height: 60}}></i></div>
-                        <div className="absolute bottom-20 left-1/4 animate-bounce text-[#d4af37]"><i data-lucide="sparkles" style={{width: 40, height: 40}}></i></div>
+                    <div className="fixed inset-0 pointer-events-none opacity-30 z-0">
+                        <div className="absolute top-20 left-10 animate-float">
+                            <i data-lucide="heart" fill="#d4af37" style={{width: 50, height: 50}}></i>
+                        </div>
+                        <div className="absolute bottom-40 right-10 animate-float" style={{animationDelay: '2s'}}>
+                            <i data-lucide="sparkles" className="text-[#d4af37]" style={{width: 60, height: 60}}></i>
+                        </div>
                     </div>
 
-                    <header className="relative pt-10 pb-6 text-center px-6">
-                        <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 3 }} className="inline-block mb-4 p-3 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30">
-                            <i data-lucide="heart" fill="#d4af37" className="text-[#d4af37]"></i>
+                    <header className="relative pt-20 pb-16 text-center px-6 z-10">
+                        <motion.div 
+                            animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }} 
+                            transition={{ repeat: Infinity, duration: 5 }} 
+                            className="inline-block mb-8 p-5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/40 shadow-[0_0_30px_rgba(212,175,55,0.2)]"
+                        >
+                            <i data-lucide="crown" className="text-[#d4af37]" fill="#d4af37" style={{width: 32, height: 32}}></i>
                         </motion.div>
-                        <motion.h1 initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-4xl md:text-7xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-b from-[#f3e5ab] via-[#d4af37] to-[#8a6d3b] drop-shadow-[0_2px_15px_rgba(212,175,55,0.4)] leading-tight">
-                            My Dark Chocolate Queen
+                        <motion.h1 
+                            initial={{ y: -50, opacity: 0 }} 
+                            animate={{ y: 0, opacity: 1 }} 
+                            className="text-6xl md:text-9xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-b from-[#f3e5ab] via-[#d4af37] to-[#8a6d3b] drop-shadow-[0_4px_12px_rgba(0,0,0,1)]"
+                        >
+                            Dark Chocolate Queen
                         </motion.h1>
-                        <p className="text-lg md:text-xl italic opacity-80 tracking-wide">"Bitter without you, sweet because of you."</p>
+                        <p className="text-2xl md:text-3xl italic text-[#d4af37] font-bold tracking-[0.2em] text-glow text-shadow-strong">
+                            "Bitter without you, sweet because of you."
+                        </p>
                     </header>
 
-                    <main className="max-w-4xl mx-auto px-6 space-y-10 md:space-y-20">
+                    <main className="max-w-4xl mx-auto px-6 space-y-32 relative z-10">
+                        
+                        {/* Status Panel (Original Our Love Composition Style) */}
                         <section className="bg-gradient-to-b from-[#1e110b] to-[#0d0705] border border-[#d4af37]/40 rounded-[2rem] p-6 md:p-10 text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-2 bg-[#1a0f0a]">
-                                <motion.div initial={{ width: 0 }} animate={{ width: `${lovePercent}%` }} transition={{ duration: 2.5 }} className="h-full bg-gradient-to-r from-[#8a6d3b] via-[#f3e5ab] to-[#d4af37]" />
+                                <motion.div 
+                                    initial={{ width: 0 }} 
+                                    animate={{ width: `${lovePercent}%` }} 
+                                    transition={{ duration: 2.5 }} 
+                                    className="h-full bg-gradient-to-r from-[#8a6d3b] via-[#f3e5ab] to-[#d4af37]" 
+                                />
                             </div>
                             <h2 className="text-xl md:text-2xl mb-8 text-[#d4af37] font-black tracking-[0.3em] uppercase">Our Love Composition</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -132,7 +178,7 @@
                                     { val: "10%", label: "Creamy Sweetness" },
                                     { val: "100%", label: "In Love With You", highlight: true }
                                 ].map((stat, i) => (
-                                    <motion.div key={i} whileHover={{ y: -5 }} className={`p-6 rounded-2xl border ${stat.highlight ? 'bg-[#d4af37] text-[#1a0f0a] border-white' : 'bg-[#1a0f0a]/50 border-[#d4af37]/30'}`}>
+                                    <motion.div key={i} whileHover={{ y: -5 }} className={`p-6 rounded-2xl border ${stat.highlight ? 'bg-[#d4af37] text-[#1a0f0a] border-white shadow-[0_10px_30px_rgba(212,175,55,0.4)]' : 'bg-[#1a0f0a]/50 border-[#d4af37]/30'}`}>
                                         <div className="text-4xl font-black mb-1">{stat.val}</div>
                                         <div className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">{stat.label}</div>
                                     </motion.div>
@@ -140,72 +186,128 @@
                             </div>
                         </section>
 
+                        {/* Chocolate Selection */}
                         <section className="text-center">
-                            <h2 className="text-2xl md:text-3xl font-black mb-16 flex justify-center items-center gap-3 text-[#d4af37] tracking-[0.2em]">
-                                <i data-lucide="gift" className="w-8 h-8"></i> THE GOLDEN COLLECTION
+                            <h2 className="text-3xl font-black mb-24 text-[#d4af37] tracking-[0.4em] flex items-center justify-center gap-5">
+                                <i data-lucide="star" className="w-8 h-8 fill-current"></i> THE GOLDEN COLLECTION
                             </h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-20">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-16 gap-y-28">
                                 {TRUFFLES.map((t) => (
-                                    <motion.div key={t.id} whileHover={{ scale: 1.1 }} onClick={() => openTruffle(t)} className="cursor-pointer relative flex flex-col items-center group">
-                                        <div className="relative w-24 h-24 md:w-32 md:h-32">
-                                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-[110%] h-10 bg-gradient-to-b from-[#4a2c2a] to-[#1a0f0a] rounded-b-xl border-t-2 border-[#d4af37]/50 shadow-xl flex overflow-hidden z-0">
-                                                {Array.from({length: 12}).map((_, i) => (<div key={i} className="flex-1 border-r border-black/30 h-full skew-x-1" />))}
-                                            </div>
-                                            <div className={`w-full h-full rounded-full relative z-10 overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.8)] border-2 flex items-center justify-center transition-all duration-500
+                                    <motion.div 
+                                        key={t.id} 
+                                        whileHover={{ scale: 1.15 }} 
+                                        onClick={() => openTruffle(t)} 
+                                        className="cursor-pointer flex flex-col items-center group relative"
+                                    >
+                                        <div className="relative w-32 h-32 md:w-40 md:h-40">
+                                            {/* Wrapper Cup */}
+                                            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-[110%] h-14 bg-gradient-to-b from-[#3d251e] to-[#0d0705] rounded-b-3xl border-t-2 border-[#d4af37]/50 shadow-2xl z-0"></div>
+                                            
+                                            {/* The Chocolate Sphere */}
+                                            <div className={`w-full h-full rounded-full relative z-10 border-2 shadow-[0_15px_45px_rgba(0,0,0,0.9)] flex items-center justify-center overflow-hidden transition-all duration-500
                                                 ${t.type === 'white' ? 'bg-[#ffffff] border-[#eee]' : t.type === 'dark' ? 'bg-[#1a0a05] border-[#3d251e]' : 'bg-gradient-to-br from-[#f3e5ab] via-[#d4af37] to-[#8a6d3b] border-[#d4af37]'}`}>
-                                                <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_2px_2px,_#fff_1px,_transparent_0)] bg-[length:6px_6px]"></div>
-                                                <div className="w-14 h-7 md:w-20 md:h-10 bg-white rounded-sm shadow-xl flex flex-col items-center justify-center border-2 border-[#d4af37] z-20 transform -rotate-2">
-                                                    <span className="text-[6px] md:text-[8px] font-black text-[#1a0f0a] uppercase leading-none">Ferrero</span>
-                                                    <span className="text-[5px] md:text-[6px] font-bold text-[#d4af37] uppercase leading-none mt-0.5">Rocher</span>
+                                                
+                                                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_3px_3px,_#fff_1px,_transparent_0)] bg-[length:7px_7px]"></div>
+                                                
+                                                {/* Brand Tag */}
+                                                <div className="px-4 py-1.5 bg-white border-2 border-[#d4af37] rounded-sm shadow-xl z-20 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500">
+                                                    <div className="text-[10px] font-black text-[#0d0705] leading-none uppercase tracking-tighter">Ferrero</div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="mt-8 text-[10px] md:text-xs font-black tracking-[0.3em] text-[#d4af37] uppercase bg-[#1a0f0a] px-3 py-1 rounded-full border border-[#d4af37]/20">{t.flavor.split(' ').slice(1).join(' ')}</p>
+                                        <div className="mt-10 px-6 py-2 bg-black/60 rounded-full border border-[#d4af37]/40 group-hover:border-[#d4af37] transition-colors">
+                                            <p className="text-[10px] md:text-xs font-black tracking-[0.3em] text-[#d4af37] uppercase">
+                                                {t.flavor.split(' ').slice(1).join(' ')}
+                                            </p>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </div>
                         </section>
 
-                        <section className="flex flex-col items-center py-6">
-                            <motion.button whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(212,175,55,0.6)' }} whileTap={{ scale: 0.95 }} onClick={triggerRain} className="group relative px-12 py-6 bg-gradient-to-r from-[#8a6d3b] via-[#d4af37] to-[#8a6d3b] text-[#1a0f0a] rounded-full font-black text-xl shadow-[0_15px_40px_rgba(0,0,0,0.4)] flex items-center gap-4 overflow-hidden">
-                                <i data-lucide="sparkles" className="animate-spin-slow"></i>
-                                <span className="tracking-widest uppercase">Send some love</span>
+                        {/* Interaction Hub */}
+                        <section className="flex flex-col items-center py-10">
+                            <motion.button 
+                                whileHover={{ scale: 1.05, boxShadow: '0 0 60px rgba(212,175,55,0.5)' }} 
+                                whileTap={{ scale: 0.95 }} 
+                                onClick={triggerRain} 
+                                className="relative px-16 py-8 bg-gradient-to-r from-[#8a6d3b] via-[#d4af37] to-[#8a6d3b] text-[#0d0705] rounded-full font-black text-2xl shadow-2xl flex items-center gap-5 group overflow-hidden"
+                            >
+                                <i data-lucide="sparkles" className="animate-spin-slow w-8 h-8"></i>
+                                <span className="tracking-[0.25em] uppercase">Showers of Love</span>
                             </motion.button>
+                            <p className="mt-8 text-[#d4af37]/60 italic text-lg text-glow tracking-widest">A gift for your soul...</p>
                         </section>
 
-                        <section className="bg-gradient-to-br from-[#d4af37] to-[#8a6d3b] text-[#1a0f0a] rounded-[2.5rem] p-10 text-center shadow-[0_20px_60px_rgba(212,175,55,0.3)] relative group">
-                            <div className="absolute -top-6 -right-6 text-[#1a0f0a]/10 rotate-12 group-hover:rotate-45 transition-transform duration-700">
-                                <i data-lucide="heart-handshake" style={{width: 150, height: 150}}></i>
+                        {/* Credit System */}
+                        <section className="bg-gradient-to-br from-[#d4af37] to-[#8a6d3b] text-[#0d0705] rounded-[4rem] p-16 text-center shadow-[0_25px_70px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                             <div className="absolute -bottom-10 -left-10 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
+                                <i data-lucide="gift" style={{width: 300, height: 300}}></i>
                             </div>
-                            <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.4em] mb-4 text-[#1a0f0a]/70">Chocolate Credits</h3>
-                            <motion.div key={chocolateCredits} initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-8xl md:text-9xl font-black mb-6 drop-shadow-2xl">{chocolateCredits}</motion.div>
-                            <p className="font-black text-sm md:text-lg italic px-4 border-t-2 border-[#1a0f0a]/10 pt-6 uppercase tracking-tighter">"Redeemable on our next date!"</p>
+                            <h3 className="text-sm font-black uppercase tracking-[0.6em] mb-6 opacity-70">Redeemable Chocolate Credits</h3>
+                            <motion.div 
+                                key={chocolateCredits} 
+                                initial={{ scale: 0.5, opacity: 0 }} 
+                                animate={{ scale: 1, opacity: 1 }} 
+                                className="text-[10rem] font-black mb-8 drop-shadow-2xl leading-none"
+                            >
+                                {chocolateCredits}
+                            </motion.div>
+                            <div className="border-t-2 border-[#0d0705]/20 pt-10">
+                                <p className="font-black text-2xl uppercase tracking-[0.1em] italic">"Valid for actual treats on our next date"</p>
+                            </div>
                         </section>
                     </main>
 
+                    {/* Modals & Animations Overlays */}
                     <AnimatePresence>
                         {openedTruffle && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
-                                <motion.div initial={{ scale: 0.7, y: 50 }} animate={{ scale: 1, y: 0 }} className="bg-gradient-to-b from-[#2d1b15] to-[#1a0f0a] border-[4px] border-[#d4af37] p-12 rounded-[3rem] max-w-sm w-full text-center relative shadow-[0_0_100px_rgba(212,175,55,0.5)]">
-                                    <div className="text-7xl mb-8">✨</div>
-                                    <h3 className="text-[#d4af37] text-xl font-black tracking-[0.3em] uppercase mb-6">{openedTruffle.flavor}</h3>
-                                    <p className="text-2xl md:text-3xl font-black italic mb-10 leading-tight text-white">"{openedTruffle.message}"</p>
-                                    <button onClick={() => setOpenedTruffle(null)} className="w-full py-5 bg-[#d4af37] text-[#1a0f0a] font-black rounded-2xl active:scale-90 transition-transform uppercase tracking-[0.2em] text-sm shadow-xl">Close with a Kiss</button>
+                            <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                exit={{ opacity: 0 }} 
+                                className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/98 backdrop-blur-xl"
+                            >
+                                <motion.div 
+                                    initial={{ scale: 0.8, y: 100, rotate: -2 }} 
+                                    animate={{ scale: 1, y: 0, rotate: 0 }} 
+                                    exit={{ scale: 0.8, y: 100 }}
+                                    className="bg-[#1a0f0a] border-[6px] border-[#d4af37] p-12 md:p-20 rounded-[5rem] max-w-xl w-full text-center relative shadow-[0_0_120px_rgba(212,175,55,0.5)]"
+                                >
+                                    <div className="text-8xl mb-10 animate-bounce">🍫</div>
+                                    <h3 className="text-[#d4af37] text-2xl font-black tracking-[0.4em] uppercase mb-8 opacity-80">{openedTruffle.flavor}</h3>
+                                    <p className="text-4xl md:text-5xl font-black italic mb-16 text-white leading-[1.2] text-shadow-strong">"{openedTruffle.message}"</p>
+                                    <button 
+                                        onClick={() => setOpenedTruffle(null)} 
+                                        className="w-full py-8 bg-[#d4af37] text-[#0d0705] font-black rounded-[2.5rem] active:scale-95 transition-all uppercase tracking-[0.3em] text-lg shadow-2xl hover:bg-[#f3e5ab] hover:scale-[1.02]"
+                                    >
+                                        Accept with a Kiss
+                                    </button>
                                 </motion.div>
                             </motion.div>
                         )}
 
                         {raining.map((item) => (
-                            <motion.div key={item.id} initial={{ y: -100, x: `${item.x}vw`, opacity: 0 }} animate={{ y: '110vh', opacity: [0, 1, 1, 0] }} transition={{ duration: item.duration, delay: item.delay }} className="fixed top-0 pointer-events-none z-[60] text-[#d4af37] whitespace-nowrap">
+                            <motion.div 
+                                key={item.id} 
+                                initial={{ y: -150, x: `${item.x}vw`, opacity: 0, rotate: -30 }} 
+                                animate={{ y: '115vh', opacity: [0, 1, 1, 0], rotate: 30 }} 
+                                transition={{ duration: item.duration, delay: item.delay, ease: "linear" }} 
+                                className="fixed top-0 pointer-events-none z-[90]"
+                            >
                                 <div className="flex flex-col items-center">
-                                    <span className="text-4xl drop-shadow-lg">✨</span>
-                                    <span className="bg-[#1a0f0a] px-5 py-2.5 rounded-full text-[10px] font-black border-2 border-[#d4af37] mt-3 uppercase tracking-[0.2em]">{item.text}</span>
+                                    <i data-lucide="sparkles" className="text-[#d4af37] w-6 h-6 mb-3 drop-shadow-lg"></i>
+                                    <span className="bg-[#1a0f0a] px-8 py-4 rounded-full text-xs font-black border-2 border-[#d4af37] text-[#d4af37] uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(0,0,0,0.8)] whitespace-nowrap">
+                                        {item.text}
+                                    </span>
                                 </div>
                             </motion.div>
                         ))}
                     </AnimatePresence>
 
-                    <footer className="text-center mt-16 opacity-40 text-[10px] tracking-[0.5em] uppercase font-black">For the love of my Life</footer>
+                    <footer className="text-center py-24 opacity-30 text-[11px] tracking-[1.2em] uppercase font-black text-[#d4af37]">
+                        Forever Yours, My Queen
+                    </footer>
                 </div>
             );
         };
@@ -213,8 +315,8 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
         
-        // Final icon refresh
-        setTimeout(() => lucide.createIcons(), 1000);
+        // Final init for Lucide
+        setTimeout(() => lucide.createIcons(), 600);
     </script>
 </body>
 </html>
