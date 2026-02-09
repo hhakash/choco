@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dark Chocolate Queen</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&display=swap');
+        
+        body { 
+            font-family: 'Playfair Display', serif; 
+            background-color: #0d0705; 
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom scrollbar for that premium feel */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d0705; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        // Icons from Lucide
+        const Heart = () => <i data-lucide="heart"></i>;
+        const Star = () => <i data-lucide="star"></i>;
+        const Sparkles = () => <i data-lucide="sparkles"></i>;
+        const Gift = () => <i data-lucide="gift"></i>;
+        const HeartHandshake = () => <i data-lucide="heart-handshake"></i>;
+
+        const COMPLIMENTS = [
+            "You're My Favorite Treat", "Pure Elegance", "Sweeter than Cocoa", 
+            "Incredible Soul", "Breathtaking", "My Everything", 
+            "Pure Gold", "Truly Divine", "My Soulmate", "Radiant Beauty",
+            "My Brightest Star", "Absolute Perfection", "Infinite Love",
+            "My Heart's Home", "Gorgeously Kind", "Simply Irresistible"
+        ];
+
+        const TRUFFLES = [
+            { id: 1, type: 'original', flavor: "Ferrero Rocher Original", message: "Truly Divine. You are the gold standard of my life." },
+            { id: 2, type: 'dark', flavor: "Ferrero Rondnoir", message: "Pure Elegance. My love for you is deep, dark, and sophisticated." },
+            { id: 3, type: 'white', flavor: "Ferrero Raffaello", message: "My Soulmate. You are as pure and sweet as white coconut." },
+            { id: 4, type: 'original', flavor: "Ferrero Golden Gallery", message: "Breathtaking. Every moment with you is a work of art." },
+            { id: 5, type: 'dark', flavor: "Ferrero Dark Hazelnut", message: "Pure Gold. You add the perfect crunch to my every day." },
+            { id: 6, type: 'original', flavor: "Ferrero Prestige", message: "My Everything. You deserve only the finest things in the world." },
+        ];
+
+        const App = () => {
+            const [openedTruffle, setOpenedTruffle] = useState(null);
+            const [raining, setRaining] = useState([]);
+            const [chocolateCredits, setChocolateCredits] = useState(0);
+            const [lovePercent, setLovePercent] = useState(0);
+
+            useEffect(() => {
+                lucide.createIcons();
+                const timer = setTimeout(() => setLovePercent(100), 500);
+                return () => clearTimeout(timer);
+            }, []);
+
+            const triggerRain = useCallback(() => {
+                const count = Math.floor(Math.random() * 10) + 15;
+                const newRain = Array.from({ length: count }).map((_, i) => ({
+                    id: Math.random(),
+                    x: Math.random() * 90 + 5,
+                    text: COMPLIMENTS[Math.floor(Math.random() * COMPLIMENTS.length)],
+                    delay: Math.random() * 2,
+                    duration: 3 + Math.random() * 2
+                }));
+                
+                setRaining(prev => [...prev, ...newRain]);
+                setTimeout(() => {
+                    setRaining(prev => prev.filter(item => !newRain.includes(item)));
+                }, 6000);
+            }, []);
+
+            const openTruffle = (truffle) => {
+                setOpenedTruffle(truffle);
+                setChocolateCredits(prev => prev + 1);
+            };
+
+            return (
+                <div className="min-h-screen text-[#f3e5ab] selection:bg-[#4a2c2a] selection:text-white pb-10">
+                    {/* Background Decor */}
+                    <div className="fixed inset-0 pointer-events-none opacity-20">
+                        <div className="absolute top-10 left-10 animate-pulse text-[#d4af37]"><i data-lucide="heart" fill="currentColor" style={{width: 48, height: 48}}></i></div>
+                        <div className="absolute top-1/2 right-10 -translate-y-1/2 text-[#d4af37]"><i data-lucide="star" fill="currentColor" style={{width: 60, height: 60}}></i></div>
+                        <div className="absolute bottom-20 left-1/4 animate-bounce text-[#d4af37]"><i data-lucide="sparkles" style={{width: 40, height: 40}}></i></div>
+                    </div>
+
+                    <header className="relative pt-10 pb-6 text-center px-6">
+                        <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 3 }} className="inline-block mb-4 p-3 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30">
+                            <i data-lucide="heart" fill="#d4af37" className="text-[#d4af37]"></i>
+                        </motion.div>
+                        <motion.h1 initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-4xl md:text-7xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-b from-[#f3e5ab] via-[#d4af37] to-[#8a6d3b] drop-shadow-[0_2px_15px_rgba(212,175,55,0.4)] leading-tight">
+                            My Dark Chocolate Queen
+                        </motion.h1>
+                        <p className="text-lg md:text-xl italic opacity-80 tracking-wide">"Bitter without you, sweet because of you."</p>
+                    </header>
+
+                    <main className="max-w-4xl mx-auto px-6 space-y-10 md:space-y-20">
+                        <section className="bg-gradient-to-b from-[#1e110b] to-[#0d0705] border border-[#d4af37]/40 rounded-[2rem] p-6 md:p-10 text-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-2 bg-[#1a0f0a]">
+                                <motion.div initial={{ width: 0 }} animate={{ width: `${lovePercent}%` }} transition={{ duration: 2.5 }} className="h-full bg-gradient-to-r from-[#8a6d3b] via-[#f3e5ab] to-[#d4af37]" />
+                            </div>
+                            <h2 className="text-xl md:text-2xl mb-8 text-[#d4af37] font-black tracking-[0.3em] uppercase">Our Love Composition</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                {[
+                                    { val: "90%", label: "Dark Intensity" },
+                                    { val: "10%", label: "Creamy Sweetness" },
+                                    { val: "100%", label: "In Love With You", highlight: true }
+                                ].map((stat, i) => (
+                                    <motion.div key={i} whileHover={{ y: -5 }} className={`p-6 rounded-2xl border ${stat.highlight ? 'bg-[#d4af37] text-[#1a0f0a] border-white' : 'bg-[#1a0f0a]/50 border-[#d4af37]/30'}`}>
+                                        <div className="text-4xl font-black mb-1">{stat.val}</div>
+                                        <div className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">{stat.label}</div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="text-center">
+                            <h2 className="text-2xl md:text-3xl font-black mb-16 flex justify-center items-center gap-3 text-[#d4af37] tracking-[0.2em]">
+                                <i data-lucide="gift" className="w-8 h-8"></i> THE GOLDEN COLLECTION
+                            </h2>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-20">
+                                {TRUFFLES.map((t) => (
+                                    <motion.div key={t.id} whileHover={{ scale: 1.1 }} onClick={() => openTruffle(t)} className="cursor-pointer relative flex flex-col items-center group">
+                                        <div className="relative w-24 h-24 md:w-32 md:h-32">
+                                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-[110%] h-10 bg-gradient-to-b from-[#4a2c2a] to-[#1a0f0a] rounded-b-xl border-t-2 border-[#d4af37]/50 shadow-xl flex overflow-hidden z-0">
+                                                {Array.from({length: 12}).map((_, i) => (<div key={i} className="flex-1 border-r border-black/30 h-full skew-x-1" />))}
+                                            </div>
+                                            <div className={`w-full h-full rounded-full relative z-10 overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.8)] border-2 flex items-center justify-center transition-all duration-500
+                                                ${t.type === 'white' ? 'bg-[#ffffff] border-[#eee]' : t.type === 'dark' ? 'bg-[#1a0a05] border-[#3d251e]' : 'bg-gradient-to-br from-[#f3e5ab] via-[#d4af37] to-[#8a6d3b] border-[#d4af37]'}`}>
+                                                <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_2px_2px,_#fff_1px,_transparent_0)] bg-[length:6px_6px]"></div>
+                                                <div className="w-14 h-7 md:w-20 md:h-10 bg-white rounded-sm shadow-xl flex flex-col items-center justify-center border-2 border-[#d4af37] z-20 transform -rotate-2">
+                                                    <span className="text-[6px] md:text-[8px] font-black text-[#1a0f0a] uppercase leading-none">Ferrero</span>
+                                                    <span className="text-[5px] md:text-[6px] font-bold text-[#d4af37] uppercase leading-none mt-0.5">Rocher</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="mt-8 text-[10px] md:text-xs font-black tracking-[0.3em] text-[#d4af37] uppercase bg-[#1a0f0a] px-3 py-1 rounded-full border border-[#d4af37]/20">{t.flavor.split(' ').slice(1).join(' ')}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="flex flex-col items-center py-6">
+                            <motion.button whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(212,175,55,0.6)' }} whileTap={{ scale: 0.95 }} onClick={triggerRain} className="group relative px-12 py-6 bg-gradient-to-r from-[#8a6d3b] via-[#d4af37] to-[#8a6d3b] text-[#1a0f0a] rounded-full font-black text-xl shadow-[0_15px_40px_rgba(0,0,0,0.4)] flex items-center gap-4 overflow-hidden">
+                                <i data-lucide="sparkles" className="animate-spin-slow"></i>
+                                <span className="tracking-widest uppercase">Send some love</span>
+                            </motion.button>
+                        </section>
+
+                        <section className="bg-gradient-to-br from-[#d4af37] to-[#8a6d3b] text-[#1a0f0a] rounded-[2.5rem] p-10 text-center shadow-[0_20px_60px_rgba(212,175,55,0.3)] relative group">
+                            <div className="absolute -top-6 -right-6 text-[#1a0f0a]/10 rotate-12 group-hover:rotate-45 transition-transform duration-700">
+                                <i data-lucide="heart-handshake" style={{width: 150, height: 150}}></i>
+                            </div>
+                            <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.4em] mb-4 text-[#1a0f0a]/70">Chocolate Credits</h3>
+                            <motion.div key={chocolateCredits} initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-8xl md:text-9xl font-black mb-6 drop-shadow-2xl">{chocolateCredits}</motion.div>
+                            <p className="font-black text-sm md:text-lg italic px-4 border-t-2 border-[#1a0f0a]/10 pt-6 uppercase tracking-tighter">"Redeemable on our next date!"</p>
+                        </section>
+                    </main>
+
+                    <AnimatePresence>
+                        {openedTruffle && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
+                                <motion.div initial={{ scale: 0.7, y: 50 }} animate={{ scale: 1, y: 0 }} className="bg-gradient-to-b from-[#2d1b15] to-[#1a0f0a] border-[4px] border-[#d4af37] p-12 rounded-[3rem] max-w-sm w-full text-center relative shadow-[0_0_100px_rgba(212,175,55,0.5)]">
+                                    <div className="text-7xl mb-8">✨</div>
+                                    <h3 className="text-[#d4af37] text-xl font-black tracking-[0.3em] uppercase mb-6">{openedTruffle.flavor}</h3>
+                                    <p className="text-2xl md:text-3xl font-black italic mb-10 leading-tight text-white">"{openedTruffle.message}"</p>
+                                    <button onClick={() => setOpenedTruffle(null)} className="w-full py-5 bg-[#d4af37] text-[#1a0f0a] font-black rounded-2xl active:scale-90 transition-transform uppercase tracking-[0.2em] text-sm shadow-xl">Close with a Kiss</button>
+                                </motion.div>
+                            </motion.div>
+                        )}
+
+                        {raining.map((item) => (
+                            <motion.div key={item.id} initial={{ y: -100, x: `${item.x}vw`, opacity: 0 }} animate={{ y: '110vh', opacity: [0, 1, 1, 0] }} transition={{ duration: item.duration, delay: item.delay }} className="fixed top-0 pointer-events-none z-[60] text-[#d4af37] whitespace-nowrap">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-4xl drop-shadow-lg">✨</span>
+                                    <span className="bg-[#1a0f0a] px-5 py-2.5 rounded-full text-[10px] font-black border-2 border-[#d4af37] mt-3 uppercase tracking-[0.2em]">{item.text}</span>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+
+                    <footer className="text-center mt-16 opacity-40 text-[10px] tracking-[0.5em] uppercase font-black">For the love of my Life</footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        
+        // Final icon refresh
+        setTimeout(() => lucide.createIcons(), 1000);
+    </script>
+</body>
+</html>
